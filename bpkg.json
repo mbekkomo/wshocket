@@ -2,6 +2,6 @@
   "name": "shocket",
   "version": "0.0.1",
   "description": "A Bash module for interacting WebSocket",
-  "install": "echo 'you can't install shocket globally' && exit 1",
+  "install": "echo you can't install shocket globally && exit 1",
   "scripts": [ "?" ]
 }
