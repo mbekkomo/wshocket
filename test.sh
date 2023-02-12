@@ -2,6 +2,14 @@
 
 . shocket.sh
 
-shocket_new s ws err
-echo "${ws[_pipe]}"
-echo "$err"
+shocket_new ws \
+    wss://ws.ifelse.io
+
+shocket_connect ws
+
+shocket_send ws \
+    "Hi"
+
+shocket_recieve ws
+
+shocket_close ws
