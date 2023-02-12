@@ -72,7 +72,7 @@ check_argc() {
 
 is_valid_ws() {
     local uri="$1"
-    grep '^ws://' <<< "$uri" >/dev/null || grep '^wss' <<< "$uri" >/dev/null
+    grep '^ws://' <<< "$uri" >/dev/null || grep '^wss://' <<< "$uri" >/dev/null
     return "$?"
 }
 
