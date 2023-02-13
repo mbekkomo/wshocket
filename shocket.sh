@@ -99,8 +99,8 @@ shocket_new() {
     declare -gA "$varname"; local -n _var="$varname"
     declare -g "$errname"; local -n _err="$errname"
 
-    local pipe_send="/tmp/shocket-send-$(shuf -i 1000-9999 -n 1)"
-    local pipe_recv="/tmp/shocket-recv-$(shuf -i 1000-9999 -n 1)"
+    local pipe_send="/tmp/shocket-send-$$"
+    local pipe_recv="/tmp/shocket-recv-$$"
 
     if ! is_valid_ws "$uri"; then
         _err="invalid uri"
@@ -113,17 +113,13 @@ shocket_new() {
 }
 
 ws_listen() {
-    local pidname="$1"
-    local uri="$2"
-    local pipe="$3"
-
-    declare -g "$pidname"; local -n _pid="$pidname"
+    local send_pipe="$1"
+    local recv_pipe="$2"
+    local uri="$3"
 
     while true; do
-        if read -r txt < "$pipe"; then
-            websocat - "$uri" --text <<< "$txt"
-            _pid="$!"
-        fi
+        local recv="$(websocat - "$uri" --text < "$send_pipe")"
+        echo "$recv" > "$recv_pipe"
     done
 }
 
@@ -160,11 +156,9 @@ shocket_connect() {
     mkfifo "${_var[_pipe_send]}"
     mkfifo "${_var[_pipe_recv]}"
 
-    ws_listen pid \
-        "${_var[_uri]}" "${_var[_pipe_send]}" &
+    ws_listen "${_var[_pipe_send]}" "${_var[_pipe_recv]}" "${_var[_uri]}" &
 
     _var[_wslisten_pid]="$!"
-    _var[_wssocat_pid]="$pid"
 }
 
 shocket_send() {
@@ -190,8 +184,6 @@ shocket_send() {
     declare -g "$errname"; local -n _err="$errname"
 
     echo "$msg" > "${_var[_pipe_send]}"
-    echo "${_var[_wssocat_pid]}"
-    reredirect "${_var[_wssocat_pid]}" -m "${_var[_pipe_recv]}"
 }
 
 shocket_recieve() {
@@ -238,7 +230,6 @@ shocket_close() {
 
     declare -g "$errname"; local -n _err="$errname"
 
-    kill "${_var[_wssocat_pid]}"
     kill "${_var[_wslisten_pid]}"
 
     rm -f "${_var[_pipe_send]}" "${_var[_pipe_recv]}"
