@@ -1,7 +1,8 @@
 {
   "name": "shocket",
-  "version": "0.0.1",
-  "description": "A Bash module for interacting WebSocket",
-  "install": "# its useless to install shocket with -g/--global flag #",
-  "scripts": [ "?" ]
+  "version": "dev",
+  "description": "A Bash library for easier interacting WebSocket",
+  "global": "1",
+  "install": "./install.sh",
+  "scripts": [ "shocket.sh" ]
 }

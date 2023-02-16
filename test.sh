@@ -7,8 +7,14 @@ shocket_new ws \
 
 shocket_connect ws
 
+shocket_recieve ws
+
 shocket_send ws \
     "Hi"
+
+shocket_recieve ws
+
+shocket_send ws hihi
 
 shocket_recieve ws
 

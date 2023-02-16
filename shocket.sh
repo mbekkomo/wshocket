@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 #       _                _        _ 
 #   ___| |__   ___   ___| | _____| |_
 #  / __| '_ \ / _ \ / __| |/ / _ \ __|
@@ -33,28 +32,19 @@
 
 # shellcheck disable=SC2059,SC2155,SC2034,SC2154
 
-# Replace default echo
-print() { printf "$*"; }
-println() { print "$*\n"; }
-
 # Prevent running it as a CLI tool instead
 # running it as `. shocket.sh` or `source shocket.sh`
 if [[ "${BASH_SOURCE[0]}" = "$0" ]]; then
-    println "SOURCE shocket.sh (\`. shocket.sh\` or \`source shoket.sh\`) INSTEAD OF RUNNING IT!\n"
+    printf "SOURCE shocket.sh (\`. shocket.sh\` or \`source shoket.sh\`) INSTEAD OF RUNNING IT!\n"
     exit 1
 fi
 
 check_cmd() {
     if ! command -v "$1" >/dev/null; then
-        println "SHOCKET DEPENDS ON \`$1\` COMMAND!\n"
+        printf "SHOCKET DEPENDS ON \`%s\` COMMAND!\n" "$1"
         exit 1
     fi
 }
-
-check_cmd websocat
-check_cmd reredirect
-
-## END OF CHECKS ##
 
 check_argc() {
     local argc="$1"
@@ -62,13 +52,18 @@ check_argc() {
     local fn="$4"
 
     if (( argc < min )); then
-        >&2 println "$4: LESS ARGS, ATLEAST $min OF THEM"
+        >&2 printf "%s: LESS ARGS, ATLEAST %d OF THEM" "$fn" "$min"
         return 1
     elif (( argc > max )); then
-        >&2 println "$4: MORE ARGS, MAXIMUM $max OF THEM"
+        >&2 printf "%s: MORE ARGS, MAXIMUM %d OF THEM" "$fn" "$min"
         return 1
     fi
 }
+
+check_cmd websocat
+check_cmd nc
+
+# END OF CHECKS #
 
 is_valid_ws() {
     local uri="$1"
@@ -82,45 +77,33 @@ shocket_new() {
     fi
 
     local uri varname errname
-    case "$#" in
-        2)
-            varname="$1"
-            errname="_shocket_new_ERR_"
-            uri="$2"
-            ;;
+    if (( $# == 2 )); then
+        varname="$1"
+        uri="$2"
 
-        3)
-            varname="$1"
-            errname="$2"
-            uri="$3"
-            ;;
-    esac
+        local shonew_err
+        declare -gA "$varname"; local -n shonew_var="$varname"
+    else
+        varname="$1"
+        errname="$2"
+        uri="$3"
 
-    declare -gA "$varname"; local -n _var="$varname"
-    declare -g "$errname"; local -n _err="$errname"
 
-    local pipe_send="/tmp/shocket-send-$$"
-    local pipe_recv="/tmp/shocket-recv-$$"
+        declare -gA "$varname"
+        declare -g "$errname"
+        local -n shonew_var="$varname" shonew_err="$errname"
+    fi
+        
+
+    local pipe="/tmp/shocket-$$"
 
     if ! is_valid_ws "$uri"; then
-        _err="invalid uri"
+        shonew_err="invalid uri"
         return 1
     fi
 
-    _var[_uri]="$uri"
-    _var[_pipe_send]="$pipe_send"
-    _var[_pipe_recv]="$pipe_recv"
-}
-
-ws_listen() {
-    local send_pipe="$1"
-    local recv_pipe="$2"
-    local uri="$3"
-
-    while true; do
-        local recv="$(websocat - "$uri" --text < "$send_pipe")"
-        echo "$recv" > "$recv_pipe"
-    done
+    shonew_var[_uri]="$uri"
+    shonew_var[_pipe]="$pipe"
 }
 
 shocket_connect() {
@@ -129,36 +112,30 @@ shocket_connect() {
     fi
 
     local errname
-    case "$#" in
-            1)
-                local -n _var="$1"
-                errname="_shocket_connect_ERR_"
-                ;;
+    if (( $# == 1 )); then
+        local -n shoconnect_var="$1"
+        local shoconnect_err
+    else
+        local -n shoconnect_var="$1"
 
-            2)
-                local -n _var="$1"
-                errname="$2"
-                ;;
-    esac
+        declare -g "$errname"
+        local -n shoconnect_err="$errname"
+    fi
 
-    declare -g "$errname"; local -n _err="$errname"
-
-    if [[ -e "${_var[_pipe_send]}" && -p "${_var[_pipe_send]}" ]]; then
-        _err="cannot create FIFO for send, '${_var[_pipe_send]}' exist"
+    if [[ -p "${shoconnect_var[_pipe]}" ]]; then
+        shoconnect_err="cannot create FIFO, '${shoconnect_var[_pipe]}' exist"
         return 1
     fi
 
-    if [[ -e "${_var[_pipe_recv]}" && -p "${_var[_pipe_recv]}" ]]; then
-        _err="cannot create FIFO for recieve, '${_var[_pipe_recv]}' exist"
-        return 1
-    fi
+    mkfifo "${shoconnect_var[_pipe]}"
 
-    mkfifo "${_var[_pipe_send]}"
-    mkfifo "${_var[_pipe_recv]}"
+    local port="$$"
 
-    ws_listen "${_var[_pipe_send]}" "${_var[_pipe_recv]}" "${_var[_uri]}" &
+#    ws_listen "${_var[_pipe_send]}" "${_var[_pipe]}" "${_var[_uri]}" &
+    websocat -t -u  tcp-l:127.0.0.1:"$port" reuse-raw:- | websocat "${shoconnect_var[_uri]}" > "${shoconnect_var[_pipe]}" &
 
-    _var[_wslisten_pid]="$!"
+    shoconnect_var[_websocat_pid]="$!"
+    shoconnect_var[_port]="$port"
 }
 
 shocket_send() {
@@ -167,23 +144,17 @@ shocket_send() {
     fi
 
     local errname msg
-    case "$#" in
-        2)
-            local -n _var="$1"
-            errname="_shocket_send_ERR_"
-            msg="$2"
-            ;;
+    if (( $# == 2 )); then
+        local -n shosend_var="$1"
+        msg="$2"
 
-        3)
-            local -n _var="$1"
-            errname="$2"
-            msg="$3"
-            ;;
-    esac
+        local shosend_err
+    else
+        local -n shosend_var="$1"
 
-    declare -g "$errname"; local -n _err="$errname"
+    fi
 
-    echo "$msg" > "${_var[_pipe_send]}"
+    nc 127.0.0.1 "${shosend_var[_port]}" <<< "$msg"
 }
 
 shocket_recieve() {
@@ -192,21 +163,19 @@ shocket_recieve() {
     fi
 
     local errname
-    case "$#" in
-        1)
-            local -n _var="$1"
-            errname="_shocket_send_ERR_"
-            ;;
+    if (( $# == 1 )); then
+        local -n shorecieve_var="$1"
+        
+        local shorecieve_err
+    else
+        local -n shorecieve_var="$1"
+        errname="$2"
 
-        2)
-            local -n _var="$1"
-            errname="$2"
-            ;;
-    esac
+        declare -g "$errname"
+        local -n shorecieve_err="$errname"
+    fi
 
-    declare -g "$errname"; local -n _err="$errname"
-
-    read -r recv_msg < "${_var[_pipe_recv]}"
+    read -r recv_msg < "${shorecieve_var[_pipe]}"
     echo "$recv_msg"
 }
 
@@ -216,24 +185,24 @@ shocket_close() {
     fi
 
     local errname
-    case "$#" in
-        1)
-            local -n _var="$1"
-            errname="_shocket_close_ERR_"
-            ;;
+    if (( $# == 1 )); then
+        local -n shoclose_var="$1"
 
-        2)
-            local -n _var="$1"
-            errname="$2"
-            ;;
-    esac
+        local shoclose_err
+    else
+        local -n shoclose_var="$1"
+        errname="$2"
 
-    declare -g "$errname"; local -n _err="$errname"
+        declare -g "$errname"
+        local -n shoclose_err="$errname"
+    fi
 
-    kill "${_var[_wslisten_pid]}"
+    kill "${shoclose_var[_websocat_pid]}"
 
-    rm -f "${_var[_pipe_send]}" "${_var[_pipe_recv]}"
+    rm -f /tmp/shocket-*
 }
+
+SHOCKET_VERSION="dev"
 
 export -f shocket_new
 export -f shocket_connect
