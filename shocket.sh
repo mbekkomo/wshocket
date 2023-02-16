@@ -202,7 +202,7 @@ shocket_close() {
     rm -f /tmp/shocket-*
 }
 
-SHOCKET_VERSION="dev"
+SHOCKET_VERSION="0.1.0"
 
 export -f shocket_new
 export -f shocket_connect

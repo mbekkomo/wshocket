@@ -1,6 +1,6 @@
 {
   "name": "shocket",
-  "version": "dev",
+  "version": "0.1.0",
   "description": "A Bash library for easier interacting WebSocket",
   "global": "1",
   "install": "./install.sh",
