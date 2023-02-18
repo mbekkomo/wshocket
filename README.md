@@ -3,12 +3,12 @@
 Shocket
 ---
 A Bash library for easier interacting with WebSocket<br>
-
+[![Latest Release](https://img.shields.io/github/v/release/UrNightmaree/shocket?style=for-the-badge)](https://github.com/UrNightmaree/shocket/releases/latest)
 
 </div>
 
 ## Usage
-Shocket does not use async [![Latest Release](https://img.shields.io/github/v/release/UrNightmaree/shocket?style=for-the-badge)](https://github.com/UrNightmaree/shocket/releases/latest) or anything, just `shocket_new`, `shocket_connect` and `shocket_close`
+Shocket does not use async or anything, just `shocket_new`, `shocket_connect` and `shocket_close`
 ```bash
 . shocket.sh # or `source shocket.sh`
 
