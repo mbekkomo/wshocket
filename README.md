@@ -2,7 +2,8 @@
 
 Shocket
 ---
-A Bash library for easier interacting with WebSocket
+A Bash library for easier interacting with WebSocket<br>
+[![Latest Release](https://img.shields.io/github/v/release/UrNightmaree/shocket?style=for-the-badge)](https://github.com/UrNightmaree/shocket/releases/latest)
 
 </div>
 
