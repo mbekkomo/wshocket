@@ -115,14 +115,14 @@ shocket_send() {
     nc 127.0.0.1 "${shosend_var[_port]}" <<< "$msg"
 }
 
-shocket_recieve() {
-    local -n shorecieve_var="${1:?${FUNCNAME[0]}: specify a shocket variable}"
+shocket_receive() {
+    local -n shoreceive_var="${1:?${FUNCNAME[0]}: specify a shocket variable}"
     
     if (( $# > 1 )); then
-        declare -g "$2"; local -n shorecieve_err="$2"
-    else local shorecieve_err; fi
+        declare -g "$2"; local -n shoreceive_err="$2"
+    else local shoreceive_err; fi
 
-    read -r recv_msg < "${shorecieve_var[_pipe]}"
+    read -r recv_msg < "${shoreceive_var[_pipe]}"
     echo "$recv_msg"
 }
 
@@ -140,7 +140,7 @@ shocket_close() {
 
 export -f shocket_new
 export -f shocket_connect
-export -f shocket_recieve
+export -f shocket_receive
 export -f shocket_send
 export -f shocket_close
 
