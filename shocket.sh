@@ -59,7 +59,7 @@ is_valid_ws() {
 
 # END OF FUNC DEFS #
 
-SHOCKET_VERSION="dev"
+SHOCKET_VERSION="0.1.0"
 
 shocket_new() {
     local varname="${1:?${FUNCNAME[0]}: specify a variable name}"
@@ -138,12 +138,6 @@ shocket_close() {
     rm -f /tmp/shocket-*
 }
 
-<<<<<<< HEAD
-SHOCKET_VERSION="0.1.0"
-
-=======
-# export funcs
->>>>>>> main
 export -f shocket_new
 export -f shocket_connect
 export -f shocket_recieve
