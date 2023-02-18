@@ -1,8 +1,7 @@
 {
   "name": "shocket",
   "version": "dev",
-  "description": "A Bash library for easier interacting WebSocket",
-  "global": "1",
+  "description": "A Bash library for easier interacting with WebSocket",
   "install": "./install.sh",
   "scripts": [ "shocket.sh" ]
 }
