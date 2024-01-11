@@ -52,18 +52,18 @@ _util.funcerr() {
 _util.param_assert() {
   local LVL=2
   if (($# == 2)); then
-    (($1 != $2))   && {
-                        _util.funcerr "expected $2 arguments, got $1"
-                                                                       return
+    (($1 != $2)) && {
+      _util.funcerr "expected $2 arguments, got $1"
+      return
     }
   else
-    (($1 < $2))   && {
-                       _util.funcerr "expected at least $2 arguments, got $1"
-                                                                               return
+    (($1 < $2)) && {
+      _util.funcerr "expected at least $2 arguments, got $1"
+      return
     }
-    (($1 > $3))   && {
-                       _util.funcerr "expected at most $3 arguments, got $1"
-                                                                              return
+    (($1 > $3)) && {
+      _util.funcerr "expected at most $3 arguments, got $1"
+      return
     }
   fi
   return 0
