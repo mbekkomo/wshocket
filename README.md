@@ -3,7 +3,7 @@
 Shocket
 ---
 A Bash library for easier interacting with WebSocket<br>
-[![Latest Release](https://img.shields.io/github/v/release/UrNightmaree/shocket?style=for-the-badge)](https://github.com/UrNightmaree/shocket/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/komothecat/wshocket?style=for-the-badge)](https://github.com/komothecat/wshocket/releases/latest)
 
 </div>
 
@@ -13,11 +13,11 @@ This library helps you with interacting WebSocket through Bash scripting languag
  * [Installation](#Installation)
  * [Usage](#Usage)
  * [API](#API)
-    * [shocket_new](#shocket_new)
-    * [shocket_connect](#shocket_connect)
-    * [shocket_send](#shocket_send)
-    * [shocket_receive](#shocket_receive)
-    * [shocket_close](#shocket_close)
+    * [wshocket_new](#wshocket_new)
+    * [wshocket_connect](#wshocket_connect)
+    * [wshocket_send](#wshocket_send)
+    * [wshocket_receive](#wshocket_receive)
+    * [wshocket_close](#wshocket_close)
 
 ## Installation
 Shocket dependencies:
@@ -26,95 +26,95 @@ Shocket dependencies:
 
 You can install Shocket via `bpkg`:
 ```bash
-bpkg install UrNightmaree/shocket
+bpkg install komothecat/wshocket
 ```
 or copy-and-paste it:
 ```bash
-git clone https://github.com/UrNightmaree/shocket
-cp shocket/shocket.sh .
+git clone https://github.com/komothecat/wshocket
+cp wshocket/wshocket.sh .
 ```
 
 ## Usage
-Shocket does not use async event or anything, just `shocket_new`, `shocket_connect` and `shocket_close`
+Shocket does not use async event or anything, just `wshocket_new`, `wshocket_connect` and `wshocket_close`
 ```bash
-. shocket.sh # or `source shocket.sh`
+. wshocket.sh # or `source wshocket.sh`
 
-shocket_new my_ws wss://ws.ifelse.io # create `my_ws` variable with uri
+wshocket_new my_ws wss://ws.ifelse.io # create `my_ws` variable with uri
 
 echo "inside my_ws"
 declare -p my_ws
 
-if shocket_connect my_ws conn_err; then # connect to the websocket echo server
-    shocket_receive my_ws >/dev/null # suppress message from server
+if wshocket_connect my_ws conn_err; then # connect to the websocket echo server
+    wshocket_receive my_ws >/dev/null # suppress message from server
 
-    shocket_send my_ws 'Hello from Shocket'
-    shocket_receive my_ws #=> Hello from Shocket
+    wshocket_send my_ws 'Hello from Shocket'
+    wshocket_receive my_ws #=> Hello from Shocket
 else echo "$conn_err"; exit 1; fi
 
-shocket_close my_ws
+wshocket_close my_ws
 ```
 
 ## API
 
-> For tracking error, append `shocket_*` function argument, e.g `shocket_connect ws err`. This will create a variable named `err` in your environment.
+> For tracking error, append `wshocket_*` function argument, e.g `wshocket_connect ws err`. This will create a variable named `err` in your environment.
 
-### shocket_new
-Usage: `shocket_new <variable-name> <uri>`
+### wshocket_new
+Usage: `wshocket_new <variable-name> <uri>`
 
 Create an associative array with name based on param `variable-name` with URI `uri`
 ```bash
 # Creates `ws_var` variable
-shocket_new ws_var wss://ws.example.com
+wshocket_new ws_var wss://ws.example.com
 
 declare -p ws_var
 ```
 
-### shocket_connect
-Usage: `shocket_connect <variable>`
+### wshocket_connect
+Usage: `wshocket_connect <variable>`
 
 Start listening to the WebSocket server
 ```bash
-shocket_new ws_var wss://ws.example.com
+wshocket_new ws_var wss://ws.example.com
 
-shocket_connect ws_var # Connecting and listening to `ws.example.com`
+wshocket_connect ws_var # Connecting and listening to `ws.example.com`
 ```
 
-### shocket_send
-Usage: `shocket_send <variable> <msg>`
+### wshocket_send
+Usage: `wshocket_send <variable> <msg>`
 
 Send a message to WebSocket server
 ```bash
-shocket_connect ws_var
+wshocket_connect ws_var
 
-shocket_send ws_var "Hello!" # Send "Hello!" to server
+wshocket_send ws_var "Hello!" # Send "Hello!" to server
 ```
 
-### shocket_receive
-Usage: `shocket_receive <variable>`
+### wshocket_receive
+Usage: `wshocket_receive <variable>`
 
 Receive message from WebSocket server and sent it to STDOUT
 ```bash
-shocket_connect ws_var
+wshocket_connect ws_var
 
-shocket_send ws_var "Hello!"
+wshocket_send ws_var "Hello!"
 
-shocket_receive ws_var # Sent "Hello!" to STDOUT
+wshocket_receive ws_var # Sent "Hello!" to STDOUT
 # or
-MSG="$(shocket_receive ws_var)" # Sent "Hello!" to $MSG
+MSG="$(wshocket_receive ws_var)" # Sent "Hello!" to $MSG
 ```
 
-### shocket_close
-Usage: `shocket_close <variable>`
+### wshocket_close
+Usage: `wshocket_close <variable>`
 
 Close connection between client and server.
 ```bash
-shocket_connect ws_var
+wshocket_connect ws_var
 
-shocket_send ws_var "Hello!"
-shocket_receive ws_var
+wshocket_send ws_var "Hello!"
+wshocket_receive ws_var
 
-shocket_close ws_var
+wshocket_close ws_var
 # Closes connection between client and server.
-# Variable that is created with `shocket_new` will still remain,
+# Variable that is created with `wshocket_new` will still remain,
 # use `unset` to clear it
 ```
