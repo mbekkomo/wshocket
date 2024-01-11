@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-#                _                _        _   
-#               | |              | |      | |  
-#  __      _____| |__   ___   ___| | _____| |_ 
+#                _                _        _
+#               | |              | |      | |
+#  __      _____| |__   ___   ___| | _____| |_
 #  \ \ /\ / / __| '_ \ / _ \ / __| |/ / _ \ __|
-#   \ V  V /\__ \ | | | (_) | (__|   <  __/ |_ 
+#   \ V  V /\__ \ | | | (_) | (__|   <  __/ |_
 #    \_/\_/ |___/_| |_|\___/ \___|_|\_\___|\__|
 #  -----------------------------------------------
 #         A Bash module for interacting WebSocket
@@ -51,18 +51,27 @@ _util.funcerr() {
 
 _util.param_assert() {
   local LVL=2
-  if (( $# == 2 )); then
-    (( $1 != $2 )) && { _util.funcerr "expected $2 arguments, got $1"; return; }
+  if (($# == 2)); then
+    (($1 != $2))   && {
+                        _util.funcerr "expected $2 arguments, got $1"
+                                                                       return
+    }
   else
-    (( $1 < $2 )) && { _util.funcerr "expected at least $2 arguments, got $1"; return; }
-    (( $1 > $3 )) && { _util.funcerr "expected at most $3 arguments, got $1"; return; }
+    (($1 < $2))   && {
+                       _util.funcerr "expected at least $2 arguments, got $1"
+                                                                               return
+    }
+    (($1 > $3))   && {
+                       _util.funcerr "expected at most $3 arguments, got $1"
+                                                                              return
+    }
   fi
   return 0
 }
 
 _util.is_ws_uri() { [[ "$1" =~ ^wss?://.+$ ]]; }
 
-if ! (( BASH_VERSINFO[0] >= 4 && BASH_VERSINFO[1] >= 3 || BASH_VERSINFO[0] >= 5 )); then
+if ! ((BASH_VERSINFO[0] >= 4 && BASH_VERSINFO[1] >= 3 || BASH_VERSINFO[0] >= 5)); then
   _util.error "wshocket only works in 4.3+ where nameref and coproc exist."
   return
 fi
@@ -80,4 +89,4 @@ wshocket.new() {
     _util.funcerr "invalid websocket uri: '$2'"
     return
   fi
-} 
+}
