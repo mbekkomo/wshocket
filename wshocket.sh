@@ -49,26 +49,6 @@ _util.funcerr() {
   return 1
 }
 
-_util.param_assert() {
-  local LVL=2
-  if (($# == 2)); then
-    (($1 != $2)) && {
-      _util.funcerr "expected $2 arguments, got $1"
-      return
-    }
-  else
-    (($1 < $2)) && {
-      _util.funcerr "expected at least $2 arguments, got $1"
-      return
-    }
-    (($1 > $3)) && {
-      _util.funcerr "expected at most $3 arguments, got $1"
-      return
-    }
-  fi
-  return 0
-}
-
 _util.is_ws_uri() { [[ "$1" =~ ^wss?://.+$ ]]; }
 
 if ! ((BASH_VERSINFO[0] >= 4 && BASH_VERSINFO[1] >= 3 || BASH_VERSINFO[0] >= 5)); then
@@ -81,9 +61,21 @@ if ! command -v websocat >/dev/null; then
   return
 fi
 
+declare -ra _wshocket_connected_sockets=()
+
+#~ TODO: add EXIT handler to clean up processes
+_wshocket.exit_handler() {
+  :
+}
+
+# shellcheck disable=SC2064
+trap "$(trap -p EXIT | cut -f2 -d \');_wshocket.exit_handler" EXIT
+
 wshocket.new() {
-  _util.param_assert "$#" 2 || return
-  local LVL=1
+  if [[ ! "$1" =~ ^[a-zA-Z0-9_]$ ]]; then
+    _util.funcerr "unexpected identifier: '$1'"
+    return
+  fi
 
   if ! _util.is_ws_uri "$2"; then
     _util.funcerr "invalid websocket uri: '$2'"
